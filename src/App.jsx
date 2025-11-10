@@ -1,10 +1,17 @@
 import { useEffect, useMemo, useState } from 'react'
 import { motion } from 'framer-motion'
-import { Phone, Star, Shield, Truck, ArrowRight, Menu, Check, ChevronDown } from 'lucide-react'
+import { Phone, Star, Shield, Truck, ArrowRight, Menu, ChevronDown } from 'lucide-react'
 
 const API_BASE = import.meta.env.VITE_BACKEND_URL || ''
 
 const conditions = ["Like New", "Good", "Fair", "Broken"]
+
+const brandImages = {
+  Apple: 'https://images.unsplash.com/photo-1677050319876-1a6d61dc0f7b?q=80&w=1600&auto=format&fit=crop',
+  Samsung: 'https://images.unsplash.com/photo-1610945265561-a34f84a20a9a?q=80&w=1600&auto=format&fit=crop',
+  Google: 'https://images.unsplash.com/photo-1609250291996-fdebe6020a3a?q=80&w=1600&auto=format&fit=crop',
+}
+const genericImage = 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?q=80&w=1600&auto=format&fit=crop'
 
 function Navbar() {
   const [open, setOpen] = useState(false)
@@ -77,10 +84,23 @@ function Hero({ onStart }) {
           </div>
           <div className="relative">
             <motion.div initial={{opacity:0, y:20}} animate={{opacity:1, y:0}} transition={{duration:0.6}} className="relative rounded-2xl border border-neutral-200 bg-white/70 backdrop-blur p-4">
-              <div className="aspect-[4/3] rounded-xl bg-gradient-to-br from-neutral-900 to-neutral-700 flex items-center justify-center text-white">
-                <Phone size={72} />
+              <div className="grid grid-cols-2 gap-4">
+                <div className="col-span-1 space-y-4">
+                  <div className="aspect-[4/5] overflow-hidden rounded-xl bg-neutral-900">
+                    <img src={brandImages.Apple} alt="iPhone" className="h-full w-full object-cover" />
+                  </div>
+                  <div className="aspect-[4/5] overflow-hidden rounded-xl bg-neutral-900">
+                    <img src={brandImages.Google} alt="Pixel" className="h-full w-full object-cover" />
+                  </div>
+                </div>
+                <div className="col-span-1 flex items-center">
+                  <div className="w-full aspect-[9/16] overflow-hidden rounded-xl bg-neutral-900">
+                    <img src={brandImages.Samsung} alt="Galaxy" className="h-full w-full object-cover" />
+                  </div>
+                </div>
               </div>
             </motion.div>
+            <div className="pointer-events-none absolute -bottom-6 -right-6 h-24 w-24 rounded-full bg-neutral-900/5 blur-2xl" />
           </div>
         </div>
       </div>
@@ -197,21 +217,21 @@ function DevicesGrid({ devices }) {
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <h2 className="text-3xl font-semibold text-center mb-12">Popular devices</h2>
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {devices.map((d, i) => (
-            <div key={i} className="rounded-2xl border border-neutral-200 overflow-hidden bg-white">
-              <div className="aspect-[4/3] bg-neutral-100 flex items-center justify-center">
-                {d.image ? (
-                  <img src={d.image} alt={`${d.brand} ${d.model}`} className="h-full w-full object-cover" />
-                ) : (
-                  <Phone />
-                )}
+          {devices.map((d, i) => {
+            const imgSrc = d.image || brandImages[d.brand] || genericImage
+            return (
+              <div key={i} className="group rounded-2xl border border-neutral-200 overflow-hidden bg-white">
+                <div className="relative aspect-[4/3] bg-neutral-100">
+                  <img src={imgSrc} alt={`${d.brand} ${d.model}`} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                  <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/10 to-transparent" />
+                </div>
+                <div className="p-4">
+                  <div className="font-medium">{d.brand} {d.model}</div>
+                  <div className="text-sm text-neutral-600">Up to ${d.base_price}+ depending on condition</div>
+                </div>
               </div>
-              <div className="p-4">
-                <div className="font-medium">{d.brand} {d.model}</div>
-                <div className="text-sm text-neutral-600">Up to ${d.base_price}+ depending on condition</div>
-              </div>
-            </div>
-          ))}
+            )
+          })}
         </div>
       </div>
     </section>
@@ -281,13 +301,13 @@ export default function App() {
           <DeviceSelect devices={devices} onQuote={handleQuote} />
           {quote && (
             <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 -mt-8">
-              <div className="rounded-2xl border border-neutral-200 p-6 bg-black text-white flex items-center justify-between">
+              <div className="rounded-2xl border border-neutral-200 p-6 bg-black text-white flex flex-col sm:flex-row gap-4 sm:items-center sm:justify-between">
                 <div>
                   <div className="text-sm uppercase tracking-wide text-neutral-400">Your Offer</div>
                   <div className="text-3xl font-semibold mt-1">${quote.offer}</div>
                   <div className="text-sm text-neutral-300 mt-2">{quote.brand} {quote.model} · {quote.storage} GB · {quote.condition}</div>
                 </div>
-                <button className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-white text-black border border-white">
+                <button className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-white text-black border border-white self-start sm:self-auto">
                   Continue <ArrowRight size={16} />
                 </button>
               </div>
